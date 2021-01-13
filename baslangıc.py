@@ -45,3 +45,10 @@ yd_test = data_vectorizer(yd_test, 1)
 yd_egitim = data_vectorizer(yd_egitim, 1)
 '''
 x_test = data_vectorizer(x_test, 3)
+
+
+
+weights_u = np.random.randn(2, 3) 
+weights_x = np.random.randn(2, 2) 
+weights_y = np.random.randn(1, 2) 
+
