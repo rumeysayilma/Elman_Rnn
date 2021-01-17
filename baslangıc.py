@@ -112,19 +112,24 @@ for i, (u, yd) in enumerate(zip(x_test, yd_test)):
     E = 0.5 * e**2
     test_karesel_hata.append(E)
 
-ort_test_hatası = np.sum(test_karesel_hata)
-plt.plot( range(len(test_karesel_hata)), np.reshape(test_karesel_hata,(len(test_karesel_hata))))        
+ort_test_hatası = np.sum(test_karesel_hata)/ len(x_test)
+
+plt.plot( range(len(test_karesel_hata)), np.reshape(test_karesel_hata,(len(test_karesel_hata))))  
+plt.title('Test Kümesi Ortalama Karesel Hata = ' + str(ort_test_hatası)) 
+plt.xlabel('Test Datası')
+plt.ylabel('Ortalama Karesel Hata')
+
 plt.show()
 
 p = range(0, 20, 1)
 l = np.reshape(yklar_test,(np.shape(ydler_test)))
-plt.plot(p, l )
+plt.plot(p, l , label ='yk')
 
 
 c = range(0, 20, 1)
 q = np.reshape(ydler_test,(np.shape(ydler_test)))
-plt.plot(c, q)
-
+plt.plot(c, q, label ='y_d')
+plt.legend( loc ="lower right") 
 plt.show()
 
 """
