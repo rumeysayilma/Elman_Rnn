@@ -8,24 +8,16 @@ from tqdm import tqdm
 
 """ Generating Billing Data. """
 y_d = [0, 0]
-x = []
-
-a1=[2,3,4]
-a2=[1,2,3]
-a1=np.array(a1)
-a2=np.array(a2)
-x.append(a1)
-x.append(a2)
+x = [1,2]
 
 
 for i in range(2, 100):
-    a = []
-    a.append(0.8 - 0.5 * math.exp(-((y_d[i-1])**2)))
-    a.append((0.3 + 0.9 * math.exp(-(y_d[i-1]**2)))*(y_d[i-2]))
-    a.append(0.1 * math.pi * math.sin(math.pi*(y_d[i-1])))
-    a = np.array(a)
-    x.append(a)
-    y_d.append((a[0] + a[1]+a[2] + random.random()))
+    random_noise = random.random()
+    a1 = (0.8 - 0.5 * math.exp(-((y_d[i-1])**2)))
+    a2 = ((0.3 + 0.9 * math.exp(-(y_d[i-1]**2)))*(y_d[i-2]))
+    a3 = (0.1 * math.pi * math.sin(math.pi*(y_d[i-1])))
+    x.append(random_noise)
+    y_d.append((a1 + a2 + a3 + random_noise))
 
 
 
@@ -52,43 +44,54 @@ print(np.shape(y_d))
 print('x')
 print(np.shape(x))
 
-x_egitim = data_vectorizer(x_egitim, 3)
+#x_egitim = data_vectorizer(x_egitim, 1)
 
-""" 
-yd_test = data_vectorizer(yd_test, 1)
-yd_egitim = data_vectorizer(yd_egitim, 1) 
-"""
 
-x_test = data_vectorizer(x_test, 3)
+#yd_test = data_vectorizer(yd_test, 1)
+#yd_egitim = data_vectorizer(yd_egitim, 1) 
 
-def v_to_x(v):
-    
-    return v
 
-def derivative_v_to_x(v):
-    return v
+#x_test = data_vectorizer(x_test, 1)
 
-weights_u = np.random.randn(7, 3) 
-weights_x = np.random.randn(7, 7) 
-weights_y = np.random.randn(1, 7) 
-epoch = 1200
+def v_to_x(x):
+    #t=(np.exp(x)-np.exp(-x))/(np.exp(x)+np.exp(-x))   
+    #t = np.tanh(x) 
+    t = 1/(1 + np.exp(-x))
+    return t
+
+def derivative_v_to_x(x):
+    dt = v_to_x(x)
+    return dt*(1-dt)
+
+weights_u = np.random.randn(5, 1) 
+weights_x = np.random.randn(5, 5) 
+weights_y = np.random.randn(1, 5) 
+epoch = 50
 learning_rate = 0.5
 epoch_iterator = tqdm(range(epoch))
-
-for e in range(1200):
+ydler = []
+yklar = []
+hatalar = []
+for e in range(50):
+    E=0
     for i, (u, yd) in enumerate(zip(x_egitim, yd_egitim)):
 
         #forward
         if e==0 and i==0:
-            x_k = np.random.randn(7,1)
+            x_k = np.random.randn(5,1)
         
         V_k = np.dot(weights_x, x_k) + np.dot(weights_u, u)
         x_k = v_to_x(V_k)
         y_k = np.dot(weights_y , x_k)
-
+        ydler.append(yd)
+        yklar.append(y_k)
         #hata
         e = yd - y_k
-        E = 0.5 * e.T * e
+        E += 0.5 * e**2
+        
+        
+
+
         """         
         print('yd')
         print((yd))
@@ -115,9 +118,15 @@ for e in range(1200):
         
         #agırlık güncellenmesi
         weights_x = weights_x + learning_rate * np.dot(((np.dot(weights_y.T, e))*derivative_v_to_x(V_k)), x_k.T)
-        weights_u = weights_u + learning_rate * np.dot(((np.dot(weights_y.T, e))*derivative_v_to_x(V_k)), u.T)
+        weights_u = weights_u + learning_rate * np.dot(((np.dot(weights_y.T, e))*derivative_v_to_x(V_k)), u)
         weights_y = weights_y + learning_rate * e * x_k.T
-        print(e)
+    hatalar.append(E /len(x_egitim) )
+"""
+np.reshape(yklar,(np.shape(ydler)))
+plt.plot(ydler, np.reshape(yklar,(np.shape(ydler))), color='green', linestyle='dashed', linewidth = 3, 
+         marker='o', markerfacecolor='blue', markersize=12)
+plt.show()
+"""
 
-
-        
+plt.plot( range(len(hatalar)), np.reshape(hatalar,(len(hatalar))))        
+plt.show()

@@ -15,16 +15,17 @@
 
 ## Create Neural Network Class
 
+
   - [x] initialize  weights
-  - [] Forward Propagation
-  - [] Gradient Calculate
-  - [] Backward Propagation
-  - [] Update weights
+  - [x] Forward Propagation
+  - [x] Gradient Calculate
+  - [x] Backward Propagation
+  - [x] Update weights
   - [?] Momentum fonksiyonlu öğrenme hızı
-  - [] Training Function
-    - [] Start with initial weights
-    - [] go forward -> go backward -> error -> gradients -> update ->
-    - [] Stop criteria
+  - [x] Training Function
+    - [x] Start with initial weights
+    - [x] go forward -> go backward -> error -> gradients -> update ->
+    - [x] Stop criteria
   - [] Predict Fucntion
   - [] Visualize
 
@@ -34,6 +35,7 @@
 
   2. soru
      -2. ödev ile karşılaştır
+
 
   Son
   döküman
