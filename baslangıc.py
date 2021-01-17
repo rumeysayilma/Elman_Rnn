@@ -10,7 +10,6 @@ from tqdm import tqdm
 y_d = [0, 0]
 x = [1,2]
 
-
 for i in range(2, 100):
     random_noise = random.random()
     a1 = (0.8 - 0.5 * math.exp(-((y_d[i-1])**2)))
@@ -20,12 +19,7 @@ for i in range(2, 100):
     y_d.append((a1 + a2 + a3 + random_noise))
 
 
-
-def data_vectorizer(data_to_vector, n):
-    final = [a.reshape((n, 1)) for a in data_to_vector]
-    return final
-
-
+#giriş datası eğitim ve test kümesi olarak önce karıştırılarak ayrıştırılır
 def datayi_karistir_test_ve_egitimi_ayir(x, y):
     c = list(zip(x, y))
     random.shuffle(c)
@@ -36,7 +30,7 @@ def datayi_karistir_test_ve_egitimi_ayir(x, y):
     yd_test = yd_shuffled[80:100]
     return x_egitim, x_test, yd_egitim, yd_test
 
-
+#oluşturulan fonksiyon çalıştırılır.
 x_egitim, x_test, yd_egitim, yd_test = datayi_karistir_test_ve_egitimi_ayir(
     x, y_d)
 print('y_d')
@@ -44,39 +38,42 @@ print(np.shape(y_d))
 print('x')
 print(np.shape(x))
 
-#x_egitim = data_vectorizer(x_egitim, 1)
-
-
-#yd_test = data_vectorizer(yd_test, 1)
-#yd_egitim = data_vectorizer(yd_egitim, 1) 
-
-
-#x_test = data_vectorizer(x_test, 1)
-
+#fonksiyon olarak sigmoid kullanılır
 def v_to_x(x):
-    #t=(np.exp(x)-np.exp(-x))/(np.exp(x)+np.exp(-x))   
-    #t = np.tanh(x) 
     t = 1/(1 + np.exp(-x))
     return t
 
+#gradyan hesabı için sigmoidin türev fonksiyonu oluşturulur.
 def derivative_v_to_x(x):
     dt = v_to_x(x)
     return dt*(1-dt)
 
+#başlangıç ağırlıkları atanır
 weights_u = np.random.randn(5, 1) 
 weights_x = np.random.randn(5, 5) 
 weights_y = np.random.randn(1, 5) 
+
+#iterasyon sayısı belirlenir
 epoch = 50
+
+#öğrenme hızı belirlenir
 learning_rate = 0.5
+
 epoch_iterator = tqdm(range(epoch))
+
+#durum portresi için yd ve y_k lar bir listede tutulacak. bunun için boş liste açılır
 ydler = []
 yklar = []
+
+#karesel ortalama hata hesabı için e(hata) ler bir listede tutulacak. bunun için boş liste açılır
 hatalar = []
+
 for e in range(50):
     E=0
     for i, (u, yd) in enumerate(zip(x_egitim, yd_egitim)):
 
         #forward
+        #gizli katmanın ilk elemanı rastgele atanır
         if e==0 and i==0:
             x_k = np.random.randn(5,1)
         
@@ -85,48 +82,65 @@ for e in range(50):
         y_k = np.dot(weights_y , x_k)
         ydler.append(yd)
         yklar.append(y_k)
+
         #hata
         e = yd - y_k
         E += 0.5 * e**2
-        
-        
-
-
-        """         
-        print('yd')
-        print((yd))
-        print('y_k')
-        print(np.shape(y_k))        
-        
-       
-        print('weights_y.T')
-        print(np.shape(weights_y.T))
-        print('********')
-        print('e')
-        print(np.shape(e))
-        print('********')   
-        print('np.dot(weights_y.T, e)')
-        print(np.shape(np.dot(weights_y.T, e)))
-        print('********')  
-        print('derivative_v_to_x(V_k)')
-        print(np.shape(derivative_v_to_x(V_k)))
-        print('********')   
-        print('x_k.T')
-        print(np.shape(x_k.T))
-        print('********')  
-        """     
         
         #agırlık güncellenmesi
         weights_x = weights_x + learning_rate * np.dot(((np.dot(weights_y.T, e))*derivative_v_to_x(V_k)), x_k.T)
         weights_u = weights_u + learning_rate * np.dot(((np.dot(weights_y.T, e))*derivative_v_to_x(V_k)), u)
         weights_y = weights_y + learning_rate * e * x_k.T
     hatalar.append(E /len(x_egitim) )
+
+
+ydler_test = []
+yklar_test = []
+test_karesel_hata = []
+#test 
+for i, (u, yd) in enumerate(zip(x_test, yd_test)):
+
+    V_k = np.dot(weights_x, x_k) + np.dot(weights_u, u)
+    x_k = v_to_x(V_k)
+    y_k = np.dot(weights_y , x_k)
+
+    ydler_test.append(yd)
+    yklar_test.append(y_k)
+
+    #hata
+    e = yd - y_k
+    E = 0.5 * e**2
+    test_karesel_hata.append(E)
+
+ort_test_hatası = np.sum(test_karesel_hata)
+plt.plot( range(len(test_karesel_hata)), np.reshape(test_karesel_hata,(len(test_karesel_hata))))        
+plt.show()
+
+p = range(0, 20, 1)
+l = np.reshape(yklar_test,(np.shape(ydler_test)))
+plt.plot(p, l )
+
+
+c = range(0, 20, 1)
+q = np.reshape(ydler_test,(np.shape(ydler_test)))
+plt.plot(c, q)
+
+plt.show()
+
 """
-np.reshape(yklar,(np.shape(ydler)))
-plt.plot(ydler, np.reshape(yklar,(np.shape(ydler))), color='green', linestyle='dashed', linewidth = 3, 
-         marker='o', markerfacecolor='blue', markersize=12)
+plt.plot( range(len(hatalar)), np.reshape(hatalar,(len(hatalar))))        
 plt.show()
 """
 
-plt.plot( range(len(hatalar)), np.reshape(hatalar,(len(hatalar))))        
+"""
+m = range(0, 4000, 1)
+y = np.reshape(yklar,(np.shape(ydler)))
+plt.plot(m, y )
+
+
+z = range(0, 4000, 1)
+t = np.reshape(ydler,(np.shape(ydler)))
+plt.plot(z, t)
+
 plt.show()
+"""
