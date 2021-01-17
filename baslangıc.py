@@ -60,10 +60,10 @@ weights_x = np.random.randn(5, 5)
 weights_y = np.random.randn(1, 5)
 
 # iterasyon sayısı belirlenir
-epoch = 150000
+epoch = 50
 
 # öğrenme hızı belirlenir
-learning_rate = 0.5
+learning_rate = 0.7
 
 epoch_iterator = tqdm(range(epoch))
 
